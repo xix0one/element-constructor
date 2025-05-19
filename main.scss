@@ -29,6 +29,17 @@ body {
             overflow: auto;
             width: 500px;
             height: 300px;
+            padding: .3rem;
+
+            button {
+                cursor: pointer;
+            }
+
+            div {
+                cursor: pointer;
+                resize: both;
+                overflow: auto;
+            }
         }
 
         margin-bottom: 1rem;
@@ -37,6 +48,8 @@ body {
     aside {
         border: 1px solid black;
         width: 200px;
+        resize: both;
+        overflow: auto;
     }
 
 }

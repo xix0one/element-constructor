@@ -24,10 +24,21 @@ body main #right {
   overflow: auto;
   width: 500px;
   height: 300px;
+  padding: 0.3rem;
+}
+body main #right button {
+  cursor: pointer;
+}
+body main #right div {
+  cursor: pointer;
+  resize: both;
+  overflow: auto;
 }
 body aside {
   border: 1px solid black;
   width: 200px;
+  resize: both;
+  overflow: auto;
 }
 
 /*# sourceMappingURL=main.css.map */
