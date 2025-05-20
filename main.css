@@ -11,12 +11,30 @@ body main #left {
   height: 300px;
   margin-right: 1rem;
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
+}
+body main #left select {
+  margin: 0.5rem 0;
 }
 body main #left button {
   cursor: pointer;
   margin: 0.2rem 0;
+}
+body main #left #text, body main #left #block {
+  border: 1px solid black;
+  padding: 0.5rem;
+}
+body main #left #text div, body main #left #block div {
+  display: flex;
+  flex-direction: column;
+}
+body main #left #text div input, body main #left #block div input {
+  margin: 0.2rem 0;
+}
+body main #left #text button, body main #left #block button {
+  width: 70px;
+}
+body main #left #block {
+  margin-top: 0.5rem;
 }
 body main #right {
   border: 1px solid black;
@@ -29,10 +47,13 @@ body main #right {
 body main #right button {
   cursor: pointer;
 }
-body main #right div {
+body main #right div, body main #right header, body main #right footer, body main #right aside {
   cursor: pointer;
   resize: both;
   overflow: auto;
+}
+body main #right h1, body main #right h2, body main #right h3, body main #right span, body main #right p {
+  cursor: pointer;
 }
 body aside {
   border: 1px solid black;
