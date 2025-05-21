@@ -25,6 +25,12 @@ body {
             #text, #block {
                 border: 1px solid black;
                 padding: .5rem;
+
+                #text_color_panel {
+                    flex-direction: row;
+                    align-items: center;
+                }
+
                 div {
                     display: flex;
                     flex-direction: column;
@@ -40,6 +46,11 @@ body {
 
             #block {
                 margin-top: .5rem;
+
+                #block_color_panel {
+                    flex-direction: row;
+                    align-items: center;
+                }
             }
 
         }

@@ -23,6 +23,10 @@ body main #left #text, body main #left #block {
   border: 1px solid black;
   padding: 0.5rem;
 }
+body main #left #text #text_color_panel, body main #left #block #text_color_panel {
+  flex-direction: row;
+  align-items: center;
+}
 body main #left #text div, body main #left #block div {
   display: flex;
   flex-direction: column;
@@ -35,6 +39,10 @@ body main #left #text button, body main #left #block button {
 }
 body main #left #block {
   margin-top: 0.5rem;
+}
+body main #left #block #block_color_panel {
+  flex-direction: row;
+  align-items: center;
 }
 body main #right {
   border: 1px solid black;

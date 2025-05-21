@@ -2,10 +2,16 @@
 
 let right_panel = document.getElementById("right");
 let left_panel = document.getElementById("left");
+let targets_text = [];
 
 function print_HTML_code() {
     let code = document.getElementById("code");
     code.textContent = right_panel.innerHTML.replace(/></g, ">\n<");
+}
+
+function add_el_topanel(el) {
+    right_panel.append(el);
+    print_HTML_code();
 }
 
 function remove_panel(idf, main_text) {
@@ -31,30 +37,35 @@ function check_check_boxes(el) {
     }
 }
 
+function delete_target_text(event) {
+    for (let i = targets_text.length - 1; i >= 0; --i) {
+        if (event.key === 'Delete' && targets_text[i].style.border) {
+            targets_text[i].remove();
+            print_HTML_code();
+            targets_text.splice(i, 1);
+        }
+    }
+}
 
-// function choose_text(event) {
-//     let target_text = event.target;
-
-//     function delete_target_text(event) {
-//         if (event.key === 'Delete') {
-//             target_text.remove();
-//         }
-//         print_HTML_code();
-//         document.removeEventListener("keydown", delete_target_text);
-//     }
+function choose_text(event) {
+    let current_text = event.target;
     
-//     if (target_text.style.border) {
-//         target_text.style.border = "";
-//         document.removeEventListener("keydown", delete_target_text);
-//     } else {
-//         target_text.style.border = "1px solid red";
-//         document.addEventListener("keydown", delete_target_text);
-//     }
-// }
+    if (current_text.style.border) {
+        current_text.style.border = "";
+        document.removeEventListener("keydown", delete_target_text);
+        const index = targets_text.indexOf(current_text);
+        targets_text.splice(index, 1);
+    } else {
+        current_text.style.border = "1px solid red";
+        document.addEventListener("keydown", delete_target_text);
+        targets_text.push(current_text);
+    }
+}
 
 function create_text_el(select_value, input) {
-    if (!input.value) {
+    if (!input.value.trim()) {
         input.style.borderColor = "red";
+        return; 
     } else {
         input.style.borderColor = "black";
         let el = document.createElement(select_value);
@@ -70,26 +81,42 @@ function create_text_el(select_value, input) {
 
         check_check_boxes(el);
 
-        right_panel.append(el);
-        print_HTML_code();
+        add_el_topanel(el);
 
-        // el.addEventListener("click", choose_text);
+        el.addEventListener("click", choose_text);
     }
 }
 
 function create_block_el(select_value, input) {
     let el = document.createElement(select_value);
     el.textContent = input.value;
-    el.style.border = "1px solid black";
+
+    let bd_color = document.getElementById("input_border_color").value;
+
+    let border_size = document.getElementById("border_size").value;
+    if (border_size) {
+        el.style.border = `${border_size}px solid ${bd_color}`;
+    } else {
+        el.style.border = `1px solid ${bd_color}`;
+    }
+
+    let border_radius = document.getElementById("border_radius").value;
+    if (border_radius) {
+        el.style.borderRadius = `${border_radius}px`;
+    } else {
+        el.style.borderRadius = "0px";
+    }
+
+    el.style.color = document.getElementById("input_textinblock_color").value;
     el.style.height = "40px";
     el.style.width = "70px";
+    el.style.backgroundColor = document.getElementById("input_background_color").value;
 
     el.addEventListener("click", function() {
         print_HTML_code();
     });
 
-    right_panel.append(el);
-    print_HTML_code();
+    add_el_topanel(el);
 }
 
 function default_form_setting(idf, div) {
@@ -139,24 +166,46 @@ function create_checkbox(div_boxes, boxes) {
     }
 }
 
+function create_color_panel(id_div, id_inner_div, description) {
+    let div = document.createElement("div");
+    div.id = id_div;
+    let input = document.createElement("input");
+    input.type = "color";
+    input.id = id_inner_div;
+    div.append(input);
+    div.append(description);
+
+    return div;
+}
+
+function create_size_panel(input_id, inner_text) {
+    let input = document.createElement("input");
+    input.type = "number";
+    input.id = input_id;
+    input.placeholder = inner_text;
+    return input;
+}
+
 function create_text_setting_panel() {
     let inner_div = document.createElement("div");
 
-    let input_color = document.createElement("input");
-    input_color.type = "color";
-    input_color.id = "input_color";
-    inner_div.append(input_color);
-
-    let input_size = document.createElement("input");
-    input_size.type = "number";
-    input_size.id = "input_size";
-    input_size.placeholder = "rem (3 default)";
-    inner_div.append(input_size);
+    inner_div.append(create_color_panel("text_color_panel", "input_color", "-text color"));
+    inner_div.append(create_size_panel("input_size", "rem (3 default)"));
 
     let div_boxes = document.createElement("div");
     create_checkbox(div_boxes, ["bold", "italic", "underline"]);
     inner_div.append(div_boxes);
 
+    return inner_div;
+}
+
+function create_block_setting_panel() {
+    let inner_div = document.createElement("div");
+    inner_div.append(create_color_panel("block_color_panel", "input_background_color", "-background"));
+    inner_div.append(create_color_panel("block_color_panel", "input_border_color", "-border color"));
+    inner_div.append(create_color_panel("block_color_panel", "input_textinblock_color", "-text color"));
+    inner_div.append(create_size_panel("border_size", "border size px (default 1px)"));
+    inner_div.append(create_size_panel("border_radius", "border radius px (default 0px)"));
     return inner_div;
 }
 
@@ -175,6 +224,10 @@ function create_setting_panel(event, idf, main_text) {
 
     if (idf === "text") {
         div.append(create_text_setting_panel());
+    }
+
+    if (idf === "block") {
+        div.append(create_block_setting_panel());
     }
 
     deafult_button_setting(idf, select_value, main_text, div);
