@@ -3,6 +3,7 @@
 let right_panel = document.getElementById("right");
 let left_panel = document.getElementById("left");
 let targets_text = [];
+let target_blocks = [];
 
 function print_HTML_code() {
     let code = document.getElementById("code");
@@ -37,14 +38,26 @@ function check_check_boxes(el) {
     }
 }
 
-function delete_target_text(event) {
+function delete_match(item, index) {
+    item[index].remove();
+    print_HTML_code();
+    item.splice(index, 1);
+}
+
+function delete_targets(event) {
     for (let i = targets_text.length - 1; i >= 0; --i) {
-        if (event.key === 'Delete' && targets_text[i].style.border) {
-            targets_text[i].remove();
-            print_HTML_code();
-            targets_text.splice(i, 1);
+        if (event.key === "Delete" && targets_text[i].style.border) {
+            delete_match(targets_text, i);
         }
     }
+    for (let i = target_blocks.length - 1; i >= 0; --i) {
+        if (event.key === "Delete" && target_blocks[i].style.outline) {
+            delete_match(target_blocks, i);
+        }
+    }
+    document.removeEventListener("keydown", delete_targets);
+    left_panel.innerHTML = "";
+    create_left_menu();
 }
 
 function choose_text(event) {
@@ -52,13 +65,69 @@ function choose_text(event) {
     
     if (current_text.style.border) {
         current_text.style.border = "";
-        document.removeEventListener("keydown", delete_target_text);
-        const index = targets_text.indexOf(current_text);
+        document.removeEventListener("keydown", delete_targets);
+        let index = targets_text.indexOf(current_text);
         targets_text.splice(index, 1);
     } else {
         current_text.style.border = "1px solid red";
-        document.addEventListener("keydown", delete_target_text);
+        document.addEventListener("keydown", delete_targets);
         targets_text.push(current_text);
+    }
+}
+
+function rgbToHex(rgb) {
+    const c = document.createElement('canvas').getContext('2d');
+    c.fillStyle = rgb;
+    return c.fillStyle;
+}
+
+function back_default_left_panel(current_block) {
+    current_block.style.outline = "";
+    document.removeEventListener("keydown", delete_targets);
+    let index = target_blocks.indexOf(current_block);
+    target_blocks.splice(index, 1);
+    left_panel.innerHTML = "";
+    create_left_menu();
+}
+
+function change_left_panel(current_block) {
+    left_panel.innerHTML = "";
+
+    let background_color = create_color_panel(
+        "block_color_panel", 
+        "input_background_color", 
+        "-background", 
+        [rgbToHex(current_block.style.backgroundColor), current_block]
+    );
+    left_panel.append(background_color);
+
+    // add size, text, text color, shadow?, border color, border radius, height
+    // width
+
+    let close = document.createElement('button')
+    close.textContent = "close";
+    close.addEventListener("click", function() {
+        back_default_left_panel(current_block);
+        print_HTML_code();
+    });
+    left_panel.append(close);
+}
+
+function choose_block(event) {
+    let current_block = event.target;
+
+    if (current_block.style.outline) {
+        back_default_left_panel(current_block);
+    } else {
+        for (let i = 0; i < target_blocks.length; ++i) {
+            target_blocks[i].style.outline = "";
+        }
+        target_blocks = [];
+
+        current_block.style.outline = "2px dashed green";
+        document.addEventListener("keydown", delete_targets);
+        target_blocks.push(current_block);
+        change_left_panel(current_block);
     }
 }
 
@@ -91,30 +160,31 @@ function create_block_el(select_value, input) {
     let el = document.createElement(select_value);
     el.textContent = input.value;
 
-    let bd_color = document.getElementById("input_border_color").value;
-
+    let border_color = document.getElementById("input_border_color").value;
     let border_size = document.getElementById("border_size").value;
-    if (border_size) {
-        el.style.border = `${border_size}px solid ${bd_color}`;
-    } else {
-        el.style.border = `1px solid ${bd_color}`;
-    }
+    el.style.border = border_size 
+        ? `${border_size}px solid ${border_color}`
+        : `1px solid ${border_color}`;
 
     let border_radius = document.getElementById("border_radius").value;
-    if (border_radius) {
-        el.style.borderRadius = `${border_radius}px`;
-    } else {
-        el.style.borderRadius = "0px";
-    }
+    el.style.borderRadius = border_radius
+        ? el.style.borderRadius = `${border_radius}px`
+        : el.style.borderRadius = "0px";
+
+    let width_block = document.getElementById("width_block").value;
+    el.style.width = width_block
+        ? el.style.width = `${width_block}px`
+        : el.style.width = `70px`;
+
+    let height_block = document.getElementById("height_block").value;
+    el.style.height = height_block
+        ? el.style.height = `${height_block}px`
+        : el.style.height = `40px`;
 
     el.style.color = document.getElementById("input_textinblock_color").value;
-    el.style.height = "40px";
-    el.style.width = "70px";
     el.style.backgroundColor = document.getElementById("input_background_color").value;
 
-    el.addEventListener("click", function() {
-        print_HTML_code();
-    });
+    el.addEventListener("click", choose_block);
 
     add_el_topanel(el);
 }
@@ -166,12 +236,20 @@ function create_checkbox(div_boxes, boxes) {
     }
 }
 
-function create_color_panel(id_div, id_inner_div, description) {
+function create_color_panel(id_div, id_inner_div, description, info) {
     let div = document.createElement("div");
     div.id = id_div;
     let input = document.createElement("input");
     input.type = "color";
     input.id = id_inner_div;
+
+    if (info) {
+        input.value = info[0];
+        input.addEventListener("change", function() {
+            info[1].style.backgroundColor = event.target.value;
+        });
+    }
+
     div.append(input);
     div.append(description);
 
@@ -204,8 +282,10 @@ function create_block_setting_panel() {
     inner_div.append(create_color_panel("block_color_panel", "input_background_color", "-background"));
     inner_div.append(create_color_panel("block_color_panel", "input_border_color", "-border color"));
     inner_div.append(create_color_panel("block_color_panel", "input_textinblock_color", "-text color"));
-    inner_div.append(create_size_panel("border_size", "border size px (default 1px)"));
-    inner_div.append(create_size_panel("border_radius", "border radius px (default 0px)"));
+    inner_div.append(create_size_panel("width_block", "width px (70px)"));
+    inner_div.append(create_size_panel("height_block", "height px (40px)"));
+    inner_div.append(create_size_panel("border_size", "border size px (1px)"));
+    inner_div.append(create_size_panel("border_radius", "border radius px (0px)"));
     return inner_div;
 }
 

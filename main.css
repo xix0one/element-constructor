@@ -57,8 +57,6 @@ body main #right button {
 }
 body main #right div, body main #right header, body main #right footer, body main #right aside {
   cursor: pointer;
-  resize: both;
-  overflow: auto;
 }
 body main #right h1, body main #right h2, body main #right h3, body main #right span, body main #right p {
   cursor: pointer;
