@@ -49,16 +49,16 @@ function delete_match(item, index) {
 
 
 function delete_targets(event) {
-    // for (let i = targets_text.length - 1; i >= 0; --i) {
-    //     if (event.key === "Delete" && targets_text[i].style.border) {
-    //         delete_match(targets_text, i);
-    //     }
-    // }
-    // for (let i = target_blocks.length - 1; i >= 0; --i) {
-    //     if (event.key === "Delete" && target_blocks[i].style.outline) {
-    //         delete_match(target_blocks, i);
-    //     }
-    // }
+    for (let i = targets_text.length - 1; i >= 0; --i) {
+        if (event.key === "Delete" && targets_text[i].style.border) {
+            delete_match(targets_text, i);
+        }
+    }
+    for (let i = target_blocks.length - 1; i >= 0; --i) {
+        if (event.key === "Delete" && target_blocks[i].style.outline) {
+            delete_match(target_blocks, i);
+        }
+    }
 }
 
 function back_default_left_panel(current_item, type) {
@@ -116,8 +116,9 @@ function change_colors(current_block, id_inner_div, description, property) {
 // FIX IT !!!!1
 function change_sizes(current_block, input_id, property) {
     let input = create_size_panel(input_id, current_block.style[property]);
-    input.addEventListener("keydown", function(event) {
+    input.addEventListener("change", function(event) {
         current_block.style[property] = `${event.target.value}px`;
+        input.placeholder = `${current_block.style[property]}`;
     });
     left_panel.append(input);
 }
