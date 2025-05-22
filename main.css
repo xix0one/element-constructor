@@ -12,6 +12,18 @@ body main #left {
   margin-right: 1rem;
   padding: 1rem;
 }
+body main #left #panel_target_item {
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+body main #left #panel_target_item button {
+  width: 70px;
+}
+body main #left #panel_target_item input, body main #left #panel_target_item div, body main #left #panel_target_item button {
+  margin: 0.2rem 0;
+}
 body main #left select {
   margin: 0.5rem 0;
 }
@@ -20,6 +32,8 @@ body main #left button {
   margin: 0.2rem 0;
 }
 body main #left #shadow_panel_setting {
+  display: flex;
+  flex-direction: column;
   border: 1px solid black;
   padding: 0.5rem;
   margin: 0.5rem 0;

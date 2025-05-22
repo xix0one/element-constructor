@@ -13,6 +13,22 @@ body {
             margin-right: 1rem;
             padding: 1rem;
 
+            #panel_target_item {
+                border: 1px solid black;
+                display: flex;
+                flex-direction: column;
+
+                padding: .5rem;
+
+                button {
+                    width: 70px;
+                }
+
+                input, div, button {
+                    margin: .2rem 0;
+                }
+            }
+
             select {
                 margin: .5rem 0;
             }
@@ -23,6 +39,8 @@ body {
             }
 
             #shadow_panel_setting {
+                display: flex;
+                flex-direction: column;
                 border: 1px solid black;
                 padding: .5rem;
                 margin: .5rem 0;

@@ -90,7 +90,8 @@ function create_close_button(current_item, type) {
         back_default_left_panel(current_item, type);
         print_HTML_code();
     });
-    left_panel.append(close);
+
+    return close;
 }
 
 function change_current_text(current_text) {
@@ -110,21 +111,49 @@ function change_colors(current_block, id_inner_div, description, property) {
         current_block.style[property] = event.target.value;
         print_HTML_code();
     });
-    left_panel.append(color_panel[0]);
+  
+    return color_panel[0];
 }
 
-// FIX IT !!!!1
 function change_sizes(current_block, input_id, property) {
-    let input = create_size_panel(input_id, current_block.style[property]);
+    let input = "";
+
+    if (property === "border") {
+        input = create_size_panel(input_id, `border: ${current_block.style.borderWidth}`);
+    } else {
+        input = create_size_panel(input_id, `${property}: ${current_block.style[property]}`);
+    }   
     input.addEventListener("change", function(event) {
-        current_block.style[property] = `${event.target.value}px`;
-        input.placeholder = `${current_block.style[property]}`;
+        if (property === "border") {
+            let input_border_color = document.getElementById("input_border_color").value;
+            current_block.style[property] = `${event.target.value}px solid ${input_border_color}`;
+            input.placeholder = `${property}: ${current_block.style.borderWidth}`;
+        } else {
+            current_block.style[property] = `${event.target.value}px`;
+            input.placeholder = `${property}: ${current_block.style[property]}`;
+        }
     });
-    left_panel.append(input);
+    
+    return input;
+}
+
+function change_shadow(current_block) {
+    let shadow_right = document.getElementById("shadow_right");
+    let shadow_down = document.getElementById("shadow_down");
+    let blur = document.getElementById("blur");
+
+    let shadow_style = current_block.style.boxShadow.split(/\s+/);
+    console.log(shadow_right);
+    shadow_right.style.placeholder = shadow_style[1];
+    shadow_down.style.placeholder = shadow_style[2];
+    blur.style.placeholder = shadow_style[3];
 }
 
 function change_current_block(current_block) {
     left_panel.innerHTML = "";
+
+    let panel_target_item = document.createElement("div");
+    panel_target_item.id = "panel_target_item";
 
     let text_input = document.createElement("input");
     text_input.type = "text";
@@ -137,17 +166,25 @@ function change_current_block(current_block) {
         current_block.textContent = text_input.value;
         print_HTML_code();
     });
-    left_panel.append(text_input);
+    panel_target_item.append(text_input);
     
-    change_colors(current_block, "input_background_color", "-background", "backgroundColor");
-    change_colors(current_block, "input_border_color", "-border color", "borderColor");
-    change_colors(current_block, "input_text_color", "-text color", "color");  
+    panel_target_item.append(change_colors(current_block, "input_background_color", "-background", "backgroundColor"));
+    panel_target_item.append(change_colors(current_block, "input_border_color", "-border color", "borderColor"));
+    panel_target_item.append(change_colors(current_block, "input_text_color", "-text color", "color"));  
 
-    // width/height FIX!!!!11
-    change_sizes(current_block, "input_width", "width");
+    panel_target_item.append(change_sizes(current_block, "input_width", "width"));
+    panel_target_item.append(change_sizes(current_block, "input_height", "height"));
 
-    // width height, shadow, border radius
-    create_close_button(current_block, "block");
+    panel_target_item.append(change_sizes(current_block, "input_border_size", "border"));
+    panel_target_item.append(change_sizes(current_block, "input_border_radius", "borderRadius"));
+
+    panel_target_item.append(create_shadow_setting_panel());
+
+    // shadow
+
+    panel_target_item.append(create_close_button(current_block, "block"));
+    left_panel.append(panel_target_item);
+    change_shadow(current_block);
 }
 
 function choose_item(event, type) {
