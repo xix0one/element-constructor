@@ -42,37 +42,39 @@ function delete_match(item, index) {
     item[index].remove();
     print_HTML_code();
     item.splice(index, 1);
-}
-
-function delete_targets(event) {
-    for (let i = targets_text.length - 1; i >= 0; --i) {
-        if (event.key === "Delete" && targets_text[i].style.border) {
-            delete_match(targets_text, i);
-        }
-    }
-    for (let i = target_blocks.length - 1; i >= 0; --i) {
-        if (event.key === "Delete" && target_blocks[i].style.outline) {
-            delete_match(target_blocks, i);
-        }
-    }
-    document.removeEventListener("keydown", delete_targets);
     left_panel.innerHTML = "";
     create_left_menu();
+    document.removeEventListener("keydown", delete_targets);
 }
 
-function choose_text(event) {
-    let current_text = event.target;
-    
-    if (current_text.style.border) {
-        current_text.style.border = "";
-        document.removeEventListener("keydown", delete_targets);
-        let index = targets_text.indexOf(current_text);
+
+function delete_targets(event) {
+    // for (let i = targets_text.length - 1; i >= 0; --i) {
+    //     if (event.key === "Delete" && targets_text[i].style.border) {
+    //         delete_match(targets_text, i);
+    //     }
+    // }
+    // for (let i = target_blocks.length - 1; i >= 0; --i) {
+    //     if (event.key === "Delete" && target_blocks[i].style.outline) {
+    //         delete_match(target_blocks, i);
+    //     }
+    // }
+}
+
+function back_default_left_panel(current_item, type) {
+    document.removeEventListener("keydown", delete_targets);
+    if (type == "block") {
+        current_item.style.outline = "";
+        let index = target_blocks.indexOf(current_item);
+        target_blocks.splice(index, 1);
+    } else if (type == "text") {
+        current_item.style.border = "";
+        let index = targets_text.indexOf(current_item);
         targets_text.splice(index, 1);
-    } else {
-        current_text.style.border = "1px solid red";
-        document.addEventListener("keydown", delete_targets);
-        targets_text.push(current_text);
     }
+
+    left_panel.innerHTML = "";
+    create_left_menu();
 }
 
 function rgbToHex(rgb) {
@@ -81,54 +83,101 @@ function rgbToHex(rgb) {
     return c.fillStyle;
 }
 
-function back_default_left_panel(current_block) {
-    current_block.style.outline = "";
-    document.removeEventListener("keydown", delete_targets);
-    let index = target_blocks.indexOf(current_block);
-    target_blocks.splice(index, 1);
-    left_panel.innerHTML = "";
-    create_left_menu();
-}
-
-function change_left_panel(current_block) {
-    left_panel.innerHTML = "";
-
-    let background_color = create_color_panel(
-        "block_color_panel", 
-        "input_background_color", 
-        "-background", 
-        [rgbToHex(current_block.style.backgroundColor), current_block]
-    );
-    left_panel.append(background_color);
-
-    // add size, text, text color, shadow?, border color, border radius, height
-    // width
-
+function create_close_button(current_item, type) {
     let close = document.createElement('button')
     close.textContent = "close";
     close.addEventListener("click", function() {
-        back_default_left_panel(current_block);
+        back_default_left_panel(current_item, type);
         print_HTML_code();
     });
     left_panel.append(close);
 }
 
-function choose_block(event) {
-    let current_block = event.target;
+function change_current_text(current_text) {
+    left_panel.innerHTML = "";
+    create_close_button(current_text, "text");
+}
 
-    if (current_block.style.outline) {
-        back_default_left_panel(current_block);
+function change_colors(current_block, id_inner_div, description, property) {
+    let color_panel = create_color_panel(
+        "block_color_panel", 
+        id_inner_div, 
+        description, 
+        true
+    );
+    color_panel[1].value = rgbToHex(current_block.style[property]);
+    color_panel[1].addEventListener("change", function(event) {
+        current_block.style[property] = event.target.value;
+        print_HTML_code();
+    });
+    left_panel.append(color_panel[0]);
+}
+
+// FIX IT !!!!1
+function change_sizes(current_block, input_id, property) {
+    let input = create_size_panel(input_id, current_block.style[property]);
+    input.addEventListener("keydown", function(event) {
+        current_block.style[property] = `${event.target.value}px`;
+    });
+    left_panel.append(input);
+}
+
+function change_current_block(current_block) {
+    left_panel.innerHTML = "";
+
+    let text_input = document.createElement("input");
+    text_input.type = "text";
+    if (current_block.textContent) {
+        text_input.value = current_block.textContent;
     } else {
+        text_input.placeholder = "enter text";
+    }
+    text_input.addEventListener("change", function(event) {
+        current_block.textContent = text_input.value;
+        print_HTML_code();
+    });
+    left_panel.append(text_input);
+    
+    change_colors(current_block, "input_background_color", "-background", "backgroundColor");
+    change_colors(current_block, "input_border_color", "-border color", "borderColor");
+    change_colors(current_block, "input_text_color", "-text color", "color");  
+
+    // width/height FIX!!!!11
+    change_sizes(current_block, "input_width", "width");
+
+    // width height, shadow, border radius
+    create_close_button(current_block, "block");
+}
+
+function choose_item(event, type) {
+    let current_item = event.target;
+
+    if (type === "block" && current_item.style.outline) {
+        back_default_left_panel(current_item, "block");
+    } else if (type === "text" && current_item.style.border) {
+        back_default_left_panel(current_item, "text");
+    } else {
+        for (let i = 0; i < targets_text.length; ++i) {
+            targets_text[i].style.border = "";
+        }
         for (let i = 0; i < target_blocks.length; ++i) {
             target_blocks[i].style.outline = "";
         }
+        targets_text = [];
         target_blocks = [];
 
-        current_block.style.outline = "2px dashed green";
+        if (type == "text") {
+            current_item.style.border = "1px solid red";
+            targets_text.push(current_item);
+            change_current_text(current_item);
+        } else if (type == "block") {
+            current_item.style.outline = "2px dashed green";
+            target_blocks.push(current_item);
+            change_current_block(current_item);
+        }
         document.addEventListener("keydown", delete_targets);
-        target_blocks.push(current_block);
-        change_left_panel(current_block);
     }
+    print_HTML_code();
 }
 
 function create_text_el(select_value, input) {
@@ -152,7 +201,9 @@ function create_text_el(select_value, input) {
 
         add_el_topanel(el);
 
-        el.addEventListener("click", choose_text);
+        el.addEventListener("click", function(event) {
+            choose_item(event, "text");
+        });
     }
 }
 
@@ -181,10 +232,23 @@ function create_block_el(select_value, input) {
         ? el.style.height = `${height_block}px`
         : el.style.height = `40px`;
 
+    let shadow = "";
+    let input_shadow_color = document.getElementById("input_shadow_color").value;
+    let shadow_right = document.getElementById("shadow_right").value;
+    let shadow_down = document.getElementById("shadow_down").value;
+    let blur = document.getElementById("blur").value;
+    shadow += shadow_right ? `${shadow_right}px ` : "0 ";
+    shadow += shadow_down ? `${shadow_down}px ` : "0 ";
+    shadow += blur ? `${blur}px ` : "0px ";
+    shadow += input_shadow_color;
+    el.style.boxShadow = shadow;
+
     el.style.color = document.getElementById("input_textinblock_color").value;
     el.style.backgroundColor = document.getElementById("input_background_color").value;
 
-    el.addEventListener("click", choose_block);
+    el.addEventListener("click", function(event) {
+        choose_item(event, "block");
+    });
 
     add_el_topanel(el);
 }
@@ -236,24 +300,17 @@ function create_checkbox(div_boxes, boxes) {
     }
 }
 
-function create_color_panel(id_div, id_inner_div, description, info) {
+function create_color_panel(id_div, id_inner_div, description, get_input) {
     let div = document.createElement("div");
     div.id = id_div;
     let input = document.createElement("input");
     input.type = "color";
     input.id = id_inner_div;
 
-    if (info) {
-        input.value = info[0];
-        input.addEventListener("change", function() {
-            info[1].style.backgroundColor = event.target.value;
-        });
-    }
-
     div.append(input);
     div.append(description);
 
-    return div;
+    return get_input ? [div, input] : div;
 }
 
 function create_size_panel(input_id, inner_text) {
@@ -277,6 +334,17 @@ function create_text_setting_panel() {
     return inner_div;
 }
 
+function create_shadow_setting_panel() {
+    let div = document.createElement("div");
+    div.id = "shadow_panel_setting";
+    div.append("shadow");
+    div.append(create_size_panel("shadow_right", "right px (0px)"));
+    div.append(create_size_panel("shadow_down", "down px (0px)"));
+    div.append(create_size_panel("blur", "blur px (0px)"));
+    div.append(create_color_panel("block_color_panel", "input_shadow_color", "-shadow color"));
+    return div;
+}
+
 function create_block_setting_panel() {
     let inner_div = document.createElement("div");
     inner_div.append(create_color_panel("block_color_panel", "input_background_color", "-background"));
@@ -286,6 +354,8 @@ function create_block_setting_panel() {
     inner_div.append(create_size_panel("height_block", "height px (40px)"));
     inner_div.append(create_size_panel("border_size", "border size px (1px)"));
     inner_div.append(create_size_panel("border_radius", "border radius px (0px)"));
+    inner_div.append(create_shadow_setting_panel());
+    
     return inner_div;
 }
 
@@ -342,7 +412,7 @@ function create_drop_down_list(main_text, options, idf) {
 
 function create_left_menu() {
     left_panel.append(create_drop_down_list("text elements", ["h1", "h2", "h3", "p", "span"], "text"));
-    left_panel.append(create_drop_down_list("block elements", ["div", "header", "footer", "aside", "table"], "block"));
+    left_panel.append(create_drop_down_list("block elements", ["div", "header", "footer", "aside", "table", "button"], "block"));
 }
 
 create_left_menu();

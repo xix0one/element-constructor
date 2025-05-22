@@ -7,7 +7,7 @@ body main #left {
   border: 1px solid black;
   resize: both;
   overflow: auto;
-  width: 170px;
+  width: 200px;
   height: 300px;
   margin-right: 1rem;
   padding: 1rem;
@@ -18,6 +18,11 @@ body main #left select {
 body main #left button {
   cursor: pointer;
   margin: 0.2rem 0;
+}
+body main #left #shadow_panel_setting {
+  border: 1px solid black;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
 }
 body main #left #text, body main #left #block {
   border: 1px solid black;
