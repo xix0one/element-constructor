@@ -26,7 +26,7 @@ function check_check_boxes(el) {
     let bold = document.getElementById("bold");
     let italic = document.getElementById("italic");
     let underline = document.getElementById("underline");
-
+    
     if (bold.checked) {
         el.style.fontWeight = "bold";
     }
@@ -94,9 +94,42 @@ function create_close_button(current_item, type) {
     return close;
 }
 
-function change_current_text(current_text) {
+function start_new_left_panel(current_item) {
     left_panel.innerHTML = "";
-    create_close_button(current_text, "text");
+    let panel_target_item = document.createElement("div");
+    panel_target_item.id = "panel_target_item";
+
+    let text_input = document.createElement("input");
+    text_input.type = "text";
+    if (current_item.textContent) {
+        text_input.value = current_item.textContent;
+    } else {
+        text_input.placeholder = "enter text";
+    }
+    text_input.addEventListener("change", function(event) {
+        current_item.textContent = text_input.value;
+        print_HTML_code();
+    });
+    panel_target_item.append(text_input);
+
+    return panel_target_item;
+}
+
+function check_style_boxes(current_text) {
+
+}
+
+function change_current_text(current_text) {
+    let panel_target_item = start_new_left_panel(current_text);
+
+    panel_target_item.append(change_colors(current_text, "input_text_color", "-text color", "color"));
+    panel_target_item.append(change_sizes(current_text, "input_size", "font-size", "rem"));
+
+    create_checkbox(panel_target_item, ["bold", "italic", "underline"]);
+
+    panel_target_item.append(create_close_button(current_text, "text"));
+    left_panel.append(panel_target_item);
+    check_style_boxes(current_text);
 }
 
 function change_colors(current_block, id_inner_div, description, property) {
@@ -115,7 +148,7 @@ function change_colors(current_block, id_inner_div, description, property) {
     return color_panel[0];
 }
 
-function change_sizes(current_block, input_id, property) {
+function change_sizes(current_block, input_id, property, unit) {
     let input = "";
 
     if (property === "border") {
@@ -129,7 +162,7 @@ function change_sizes(current_block, input_id, property) {
             current_block.style[property] = `${event.target.value}px solid ${input_border_color}`;
             input.placeholder = `${property}: ${current_block.style.borderWidth}`;
         } else {
-            current_block.style[property] = `${event.target.value}px`;
+            current_block.style[property] = `${event.target.value}${unit}`;
             input.placeholder = `${property}: ${current_block.style[property]}`;
         }
     });
@@ -137,54 +170,36 @@ function change_sizes(current_block, input_id, property) {
     return input;
 }
 
-function change_shadow(current_block) {
-    let shadow_right = document.getElementById("shadow_right");
-    let shadow_down = document.getElementById("shadow_down");
-    let blur = document.getElementById("blur");
+// function change_shadow(current_block) {
+//     let shadow_right = document.getElementById("shadow_right");
+//     let shadow_down = document.getElementById("shadow_down");
+//     let blur = document.getElementById("blur");
 
-    let shadow_style = current_block.style.boxShadow.split(/\s+/);
-    console.log(shadow_right);
-    shadow_right.style.placeholder = shadow_style[1];
-    shadow_down.style.placeholder = shadow_style[2];
-    blur.style.placeholder = shadow_style[3];
-}
+//     let shadow_style = current_block.style.boxShadow.split(/\s+/);
+//     shadow_right.style.placeholder = shadow_style[1];
+//     shadow_down.style.placeholder = shadow_style[2];
+//     blur.style.placeholder = shadow_style[3];
+// }
 
 function change_current_block(current_block) {
-    left_panel.innerHTML = "";
-
-    let panel_target_item = document.createElement("div");
-    panel_target_item.id = "panel_target_item";
-
-    let text_input = document.createElement("input");
-    text_input.type = "text";
-    if (current_block.textContent) {
-        text_input.value = current_block.textContent;
-    } else {
-        text_input.placeholder = "enter text";
-    }
-    text_input.addEventListener("change", function(event) {
-        current_block.textContent = text_input.value;
-        print_HTML_code();
-    });
-    panel_target_item.append(text_input);
+    let panel_target_item = start_new_left_panel(current_block);
     
     panel_target_item.append(change_colors(current_block, "input_background_color", "-background", "backgroundColor"));
     panel_target_item.append(change_colors(current_block, "input_border_color", "-border color", "borderColor"));
     panel_target_item.append(change_colors(current_block, "input_text_color", "-text color", "color"));  
 
-    panel_target_item.append(change_sizes(current_block, "input_width", "width"));
-    panel_target_item.append(change_sizes(current_block, "input_height", "height"));
+    panel_target_item.append(change_sizes(current_block, "input_width", "width", "px"));
+    panel_target_item.append(change_sizes(current_block, "input_height", "height", "px"));
 
-    panel_target_item.append(change_sizes(current_block, "input_border_size", "border"));
-    panel_target_item.append(change_sizes(current_block, "input_border_radius", "borderRadius"));
+    panel_target_item.append(change_sizes(current_block, "input_border_size", "border", "px"));
+    panel_target_item.append(change_sizes(current_block, "input_border_radius", "borderRadius", "px"));
 
-    panel_target_item.append(create_shadow_setting_panel());
-
+    //panel_target_item.append(create_shadow_setting_panel());
     // shadow
 
     panel_target_item.append(create_close_button(current_block, "block"));
     left_panel.append(panel_target_item);
-    change_shadow(current_block);
+    // change_shadow(current_block);
 }
 
 function choose_item(event, type) {
